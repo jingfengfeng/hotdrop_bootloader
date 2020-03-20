@@ -1,11 +1,12 @@
-PROJECT_NAME     := secure_bootloader_uart_mbr_pca10040
-TARGETS          := nrf52832_xxaa_mbr
+PROJECT_NAME     := hotdrop_bootloader
+TARGETS          := hotdrop_bootloader
 OUTPUT_DIRECTORY := _build
 
-SDK_ROOT := ../../../../..
-PROJ_DIR := ../..
+MAKEFILE_DIR = $(dir $(realpath -s $(firstword $(MAKEFILE_LIST))))
+SDK_ROOT := $(MAKEFILE_DIR)/../external/nrf5_sdk_16
+PROJ_DIR := $(MAKEFILE_DIR)
 
-$(OUTPUT_DIRECTORY)/nrf52832_xxaa_mbr.out: \
+$(OUTPUT_DIRECTORY)/$(PROJECT_NAME).out: \
   LINKER_SCRIPT  := secure_bootloader_gcc_nrf52.ld
 
 # Source files common to all targets
@@ -49,7 +50,7 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_hash.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_init.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_shared.c \
-  $(PROJ_DIR)/../dfu_public_key.c \
+  $(PROJ_DIR)/dfu_public_key.c \
   $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/nrf_sw/nrf_sw_backend_hash.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader.c \
@@ -117,7 +118,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/bootloader \
   $(SDK_ROOT)/components/softdevice/mbr/headers \
   $(SDK_ROOT)/components/libraries/crypto \
-  ../config \
   $(SDK_ROOT)/components/libraries/crypto/backend/optiga \
   $(SDK_ROOT)/components/libraries/scheduler \
   $(SDK_ROOT)/components/libraries/slip \
@@ -199,8 +199,8 @@ LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 LDFLAGS += --specs=nano.specs
 
-nrf52832_xxaa_mbr: CFLAGS += -D__HEAP_SIZE=0
-nrf52832_xxaa_mbr: ASMFLAGS += -D__HEAP_SIZE=0
+$(PROJECT_NAME): CFLAGS += -D__HEAP_SIZE=0
+$(PROJECT_NAME): ASMFLAGS += -D__HEAP_SIZE=0
 
 # Add standard libraries at the very end of the linker input, after all objects
 # that may need symbols provided by these libraries.
@@ -210,12 +210,12 @@ LIB_FILES += -lc -lnosys -lm
 .PHONY: default help
 
 # Default target - first one defined
-default: nrf52832_xxaa_mbr
+default: $(PROJECT_NAME)
 
 # Print all targets that can be built
 help:
 	@echo following targets are available:
-	@echo		nrf52832_xxaa_mbr
+	@echo		$(PROJECT_NAME)
 	@echo		flash_mbr
 	@echo		sdk_config - starting external tool for editing sdk_config.h
 	@echo		flash      - flashing binary
@@ -231,8 +231,8 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
 # Flash the program
 flash: default
-	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52832_xxaa_mbr.hex
-	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/nrf52832_xxaa_mbr.hex --sectorerase
+	@echo Flashing: $(OUTPUT_DIRECTORY)/$(PROJECT_NAME).hex
+	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/$(PROJECT_NAME).hex --sectorerase
 	nrfjprog -f nrf52 --reset
 
 # Flash softdevice
@@ -244,7 +244,7 @@ flash_mbr:
 erase:
 	nrfjprog -f nrf52 --eraseall
 
-SDK_CONFIG_FILE := ../config/sdk_config.h
+SDK_CONFIG_FILE := $(MAKEFILE_DIR)/sdk_config.h
 CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
 sdk_config:
 	java -jar $(CMSIS_CONFIG_TOOL) $(SDK_CONFIG_FILE)
