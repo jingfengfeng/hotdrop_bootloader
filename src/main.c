@@ -60,6 +60,7 @@
 #include "app_error_weak.h"
 #include "nrf_bootloader_info.h"
 #include "nrf_delay.h"
+#include "led_node.h"
 
 static void on_error(void)
 {
@@ -106,14 +107,10 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
         case NRF_DFU_EVT_DFU_FAILED:
         case NRF_DFU_EVT_DFU_ABORTED:
         case NRF_DFU_EVT_DFU_INITIALIZED:
-            bsp_board_init(BSP_INIT_LEDS);
-            bsp_board_led_on(BSP_BOARD_LED_0);
-            bsp_board_led_on(BSP_BOARD_LED_1);
-            bsp_board_led_off(BSP_BOARD_LED_2);
+            led_node__set_num_flashes(2);
             break;
         case NRF_DFU_EVT_TRANSPORT_ACTIVATED:
-            bsp_board_led_off(BSP_BOARD_LED_1);
-            bsp_board_led_on(BSP_BOARD_LED_2);
+            led_node__set_num_flashes(3);
             break;
         case NRF_DFU_EVT_DFU_STARTED:
             break;
@@ -141,6 +138,8 @@ int main(void)
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 
     NRF_LOG_INFO("Inside main");
+
+    led_node__init();
 
     ret_val = nrf_bootloader_init(dfu_observer);
     APP_ERROR_CHECK(ret_val);
