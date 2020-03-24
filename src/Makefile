@@ -16,6 +16,10 @@ SRC_FILES += \
   $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52.S \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
   $(SDK_ROOT)/components/boards/boards.c \
@@ -76,6 +80,9 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_validation.c \
   $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_ver_validation.c \
   $(SDK_ROOT)/components/libraries/bootloader/serial_dfu/nrf_dfu_serial.c \
+  $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
+  $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
+  $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_chacha_poly_aead.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecc.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/oberon/oberon_backend_ecdh.c \
@@ -107,6 +114,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/log/src \
   $(SDK_ROOT)/components/libraries/bootloader/dfu \
   $(SDK_ROOT)/components/libraries/bootloader/serial_dfu \
+  $(SDK_ROOT)/external/segger_rtt \
   $(SDK_ROOT)/components/libraries/delay \
   $(SDK_ROOT)/integration/nrfx/legacy \
   $(SDK_ROOT)/modules/nrfx/hal \
@@ -148,11 +156,13 @@ OPT = -Os -g3
 CFLAGS += $(OPT)
 CFLAGS += -DBOARD_CUSTOM
 CFLAGS += -DCONFIG_GPIO_AS_PINRESET
+CFLAGS += -DDEBUG_NRF
 CFLAGS += -DFLOAT_ABI_HARD
 CFLAGS += -DMBR_PRESENT
 CFLAGS += -DNRF52
 CFLAGS += -DNRF52832_XXAA
 CFLAGS += -DNRF52_PAN_74
+CFLAGS += -DNRF_DFU_DEBUG_VERSION
 CFLAGS += -DNRF_DFU_SETTINGS_VERSION=2
 CFLAGS += -DSVC_INTERFACE_CALL_AS_NORMAL_FUNCTION
 CFLAGS += -DuECC_ENABLE_VLI_API=0
@@ -177,11 +187,13 @@ ASMFLAGS += -mthumb -mabi=aapcs
 ASMFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 ASMFLAGS += -DBOARD_CUSTOM
 ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
+ASMFLAGS += -DDEBUG_NRF
 ASMFLAGS += -DFLOAT_ABI_HARD
 ASMFLAGS += -DMBR_PRESENT
 ASMFLAGS += -DNRF52
 ASMFLAGS += -DNRF52832_XXAA
 ASMFLAGS += -DNRF52_PAN_74
+ASMFLAGS += -DNRF_DFU_DEBUG_VERSION
 ASMFLAGS += -DNRF_DFU_SETTINGS_VERSION=2
 ASMFLAGS += -DSVC_INTERFACE_CALL_AS_NORMAL_FUNCTION
 ASMFLAGS += -DuECC_ENABLE_VLI_API=0

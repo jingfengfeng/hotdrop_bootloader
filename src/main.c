@@ -136,10 +136,10 @@ int main(void)
     (void) NRF_LOG_INIT(nrf_bootloader_dfu_timer_counter_get);
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 
-    NRF_LOG_INFO("Inside main");
-
     nrf_gpio_cfg_output(BOARD_LED_RED);
-    nrf_gpio_pin_write(BOARD_LED_RED, 1); // Off
+    nrf_gpio_pin_write(BOARD_LED_RED, 1);
+
+    NRF_LOG_INFO("Inside main");
 
     ret_val = nrf_bootloader_init(dfu_observer);
     APP_ERROR_CHECK(ret_val);
