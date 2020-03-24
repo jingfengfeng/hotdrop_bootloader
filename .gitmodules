@@ -1,6 +1,3 @@
 [submodule "nrf5_sdk_16"]
 	path = external/nrf5_sdk_16
 	url = https://github.com/vutility/nrf5_sdk_16.git
-[submodule "firmware_common"]
-	path = external/firmware_common
-	url = https://github.com/vutility/firmware_common.git

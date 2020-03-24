@@ -53,6 +53,7 @@
 #include "nrf_bootloader_app_start.h"
 #include "nrf_bootloader_dfu_timers.h"
 #include "nrf_dfu.h"
+#include "nrf_gpio.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
@@ -60,7 +61,6 @@
 #include "app_error_weak.h"
 #include "nrf_bootloader_info.h"
 #include "nrf_delay.h"
-#include "led_node.h"
 
 static void on_error(void)
 {
@@ -107,10 +107,9 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
         case NRF_DFU_EVT_DFU_FAILED:
         case NRF_DFU_EVT_DFU_ABORTED:
         case NRF_DFU_EVT_DFU_INITIALIZED:
-            led_node__set_num_flashes(2);
             break;
         case NRF_DFU_EVT_TRANSPORT_ACTIVATED:
-            led_node__set_num_flashes(3);
+            nrf_gpio_pin_write(BOARD_LED_RED, 0); // On
             break;
         case NRF_DFU_EVT_DFU_STARTED:
             break;
@@ -139,7 +138,8 @@ int main(void)
 
     NRF_LOG_INFO("Inside main");
 
-    led_node__init();
+    nrf_gpio_cfg_output(BOARD_LED_RED);
+    nrf_gpio_pin_write(BOARD_LED_RED, 1); // Off
 
     ret_val = nrf_bootloader_init(dfu_observer);
     APP_ERROR_CHECK(ret_val);

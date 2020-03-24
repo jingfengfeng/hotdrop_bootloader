@@ -3,7 +3,7 @@ TARGETS          := hotdrop_bootloader
 OUTPUT_DIRECTORY := _build
 
 MAKEFILE_DIR = $(realpath $(dir $(realpath $(firstword $(MAKEFILE_LIST)))))
-FIRMWARE_COMMON := $(MAKEFILE_DIR)/../external/firmware_common
+# FIRMWARE_COMMON := $(MAKEFILE_DIR)/../external/firmware_common
 SDK_ROOT := $(MAKEFILE_DIR)/../external/nrf5_sdk_16
 PROJ_DIR := $(MAKEFILE_DIR)
 
@@ -14,7 +14,6 @@ $(OUTPUT_DIRECTORY)/$(PROJECT_NAME).out: \
 SRC_FILES += \
   $(PROJ_DIR)/dfu_public_key.c \
   $(PROJ_DIR)/main.c \
-  $(FIRMWARE_COMMON)/src/led_node.c \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52.S \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
@@ -25,7 +24,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecdsa.c \
   $(SDK_ROOT)/components/libraries/util/app_error_weak.c \
   $(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c \
-  $(SDK_ROOT)/components/libraries/timer/app_timer.c \
   $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
   $(SDK_ROOT)/components/libraries/crc32/crc32.c \
   $(SDK_ROOT)/components/libraries/mem_manager/mem_manager.c \
@@ -50,7 +48,6 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
-  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_ecc.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_ecdsa.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_hash.c \
@@ -89,7 +86,6 @@ SRC_FILES += \
 
 # Include folders common to all targets
 INC_FOLDERS += \
-  $(FIRMWARE_COMMON)/src \
   $(PROJ_DIR) \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
   $(SDK_ROOT)/components/libraries/crypto/backend/micro_ecc \
@@ -137,7 +133,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/external/nano-pb \
   $(SDK_ROOT)/components/libraries/queue \
   $(SDK_ROOT)/components/libraries/ringbuf \
-  $(SDK_ROOT)/components/libraries/timer \
 
 # Libraries common to all targets
 LIB_FILES += \
