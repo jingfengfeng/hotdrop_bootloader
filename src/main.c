@@ -53,7 +53,6 @@
 #include "nrf_bootloader_app_start.h"
 #include "nrf_bootloader_dfu_timers.h"
 #include "nrf_dfu.h"
-#include "nrf_gpio.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
@@ -107,9 +106,14 @@ static void dfu_observer(nrf_dfu_evt_type_t evt_type)
         case NRF_DFU_EVT_DFU_FAILED:
         case NRF_DFU_EVT_DFU_ABORTED:
         case NRF_DFU_EVT_DFU_INITIALIZED:
+            bsp_board_init(BSP_INIT_LEDS);
+            bsp_board_led_on(BSP_BOARD_LED_0);
+            bsp_board_led_on(BSP_BOARD_LED_1);
+            bsp_board_led_off(BSP_BOARD_LED_2);
             break;
         case NRF_DFU_EVT_TRANSPORT_ACTIVATED:
-            nrf_gpio_pin_write(BOARD_LED_RED, 0); // On
+            bsp_board_led_off(BSP_BOARD_LED_1);
+            bsp_board_led_on(BSP_BOARD_LED_2);
             break;
         case NRF_DFU_EVT_DFU_STARTED:
             break;
@@ -135,9 +139,6 @@ int main(void)
 
     (void) NRF_LOG_INIT(nrf_bootloader_dfu_timer_counter_get);
     NRF_LOG_DEFAULT_BACKENDS_INIT();
-
-    nrf_gpio_cfg_output(BOARD_LED_RED);
-    nrf_gpio_pin_write(BOARD_LED_RED, 1);
 
     NRF_LOG_INFO("Inside main");
 

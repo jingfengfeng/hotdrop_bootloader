@@ -1,19 +1,15 @@
-PROJECT_NAME     := hotdrop_bootloader
-TARGETS          := hotdrop_bootloader
+PROJECT_NAME     := secure_bootloader_uart_mbr_pca10040_debug
+TARGETS          := nrf52832_xxaa_mbr
 OUTPUT_DIRECTORY := _build
 
-MAKEFILE_DIR = $(realpath $(dir $(realpath $(firstword $(MAKEFILE_LIST)))))
-# FIRMWARE_COMMON := $(MAKEFILE_DIR)/../external/firmware_common
-SDK_ROOT := $(MAKEFILE_DIR)/../external/nrf5_sdk_16
-PROJ_DIR := $(MAKEFILE_DIR)
+SDK_ROOT := ../external/nrf5_sdk_16
+PROJ_DIR := .
 
-$(OUTPUT_DIRECTORY)/$(PROJECT_NAME).out: \
+$(OUTPUT_DIRECTORY)/nrf52832_xxaa_mbr.out: \
   LINKER_SCRIPT  := secure_bootloader_gcc_nrf52.ld
 
 # Source files common to all targets
 SRC_FILES += \
-  $(PROJ_DIR)/dfu_public_key.c \
-  $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52.S \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
@@ -57,6 +53,8 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_hash.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_init.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_shared.c \
+  $(PROJ_DIR)/dfu_public_key.c \
+  $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/components/libraries/crypto/backend/nrf_sw/nrf_sw_backend_hash.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader_app_start.c \
@@ -93,7 +91,6 @@ SRC_FILES += \
 
 # Include folders common to all targets
 INC_FOLDERS += \
-  $(PROJ_DIR) \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
   $(SDK_ROOT)/components/libraries/crypto/backend/micro_ecc \
   $(SDK_ROOT)/components/libraries/memobj \
@@ -128,6 +125,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/bootloader \
   $(SDK_ROOT)/components/softdevice/mbr/headers \
   $(SDK_ROOT)/components/libraries/crypto \
+  ../config \
   $(SDK_ROOT)/components/libraries/crypto/backend/optiga \
   $(SDK_ROOT)/components/libraries/scheduler \
   $(SDK_ROOT)/components/libraries/slip \
@@ -136,6 +134,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/balloc \
   $(SDK_ROOT)/components/libraries/stack_info \
   $(SDK_ROOT)/external/micro-ecc/micro-ecc \
+  $(PROJ_DIR) \
   $(SDK_ROOT)/components/libraries/crypto/backend/nrf_sw \
   $(SDK_ROOT)/modules/nrfx/mdk \
   $(SDK_ROOT)/external/nano-pb \
@@ -154,7 +153,7 @@ OPT = -Os -g3
 
 # C flags common to all targets
 CFLAGS += $(OPT)
-CFLAGS += -DBOARD_CUSTOM
+CFLAGS += -DBOARD_PCA10040
 CFLAGS += -DCONFIG_GPIO_AS_PINRESET
 CFLAGS += -DDEBUG_NRF
 CFLAGS += -DFLOAT_ABI_HARD
@@ -185,7 +184,7 @@ ASMFLAGS += -g3
 ASMFLAGS += -mcpu=cortex-m4
 ASMFLAGS += -mthumb -mabi=aapcs
 ASMFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-ASMFLAGS += -DBOARD_CUSTOM
+ASMFLAGS += -DBOARD_PCA10040
 ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
 ASMFLAGS += -DDEBUG_NRF
 ASMFLAGS += -DFLOAT_ABI_HARD
@@ -212,8 +211,8 @@ LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 LDFLAGS += --specs=nano.specs
 
-$(PROJECT_NAME): CFLAGS += -D__HEAP_SIZE=0
-$(PROJECT_NAME): ASMFLAGS += -D__HEAP_SIZE=0
+nrf52832_xxaa_mbr: CFLAGS += -D__HEAP_SIZE=0
+nrf52832_xxaa_mbr: ASMFLAGS += -D__HEAP_SIZE=0
 
 # Add standard libraries at the very end of the linker input, after all objects
 # that may need symbols provided by these libraries.
@@ -223,12 +222,12 @@ LIB_FILES += -lc -lnosys -lm
 .PHONY: default help
 
 # Default target - first one defined
-default: $(PROJECT_NAME)
+default: nrf52832_xxaa_mbr
 
 # Print all targets that can be built
 help:
 	@echo following targets are available:
-	@echo		$(PROJECT_NAME)
+	@echo		nrf52832_xxaa_mbr
 	@echo		flash_mbr
 	@echo		sdk_config - starting external tool for editing sdk_config.h
 	@echo		flash      - flashing binary
@@ -244,8 +243,8 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
 # Flash the program
 flash: default
-	@echo Flashing: $(OUTPUT_DIRECTORY)/$(PROJECT_NAME).hex
-	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/$(PROJECT_NAME).hex --sectorerase
+	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52832_xxaa_mbr.hex
+	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/nrf52832_xxaa_mbr.hex --sectorerase
 	nrfjprog -f nrf52 --reset
 
 # Flash softdevice
@@ -257,7 +256,7 @@ flash_mbr:
 erase:
 	nrfjprog -f nrf52 --eraseall
 
-SDK_CONFIG_FILE := $(MAKEFILE_DIR)/sdk_config.h
+SDK_CONFIG_FILE := ../config/sdk_config.h
 CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
 sdk_config:
 	java -jar $(CMSIS_CONFIG_TOOL) $(SDK_CONFIG_FILE)
